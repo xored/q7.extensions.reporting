@@ -1,1 +1,5 @@
 This repository will hold sample source code for various Q7 extensions.
+
+reporting
+    -> Contain example Q7 Report Renderers.
+    ->  ->  mvn clean install could be used to obtain update site with sample report formats.
