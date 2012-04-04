@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Q7" uid="com.xored.q7.q7runner" id="com.xored.q7.runner.product" application="com.xored.q7.runner.headless" version="1.2.0.qualifier" useFeatures="true" includeLaunchers="false">
+
+   <configIni use="default">
+      <linux>config.ini</linux>
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-showsplash com.xored.q7.rcp</programArgs>
+      <vmArgs>-Xms80m
+-Xmx384m</vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <splash
+      location="com.xored.q7.runner" />
+   <launcher>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="com.xored.q7.reporting.example"/>
+      <feature id="com.xored.watson"/>
+      <feature id="com.xored.q7.runner"/>
+      <feature id="com.xored.q7.updates"/>
+      <feature id="com.xored.q7.x5.server"/>
+      <feature id="org.eclipse.ecl.server"/>
+      <feature id="com.xored.tesla.ecl"/>
+      <feature id="org.eclipse.ecl.core"/>
+      <feature id="org.eclipse.ecl.ide"/>
+      <feature id="com.xored.tesla"/>
+      <feature id="org.eclipse.pde"/>
+      <feature id="org.eclipse.emf.ecore"/>
+      <feature id="org.eclipse.emf.workspace"/>
+      <feature id="org.eclipse.jdt"/>
+      <feature id="org.eclipse.platform"/>
+      <feature id="org.eclipse.emf.common"/>
+      <feature id="org.eclipse.emf.databinding"/>
+      <feature id="org.eclipse.emf.transaction"/>
+      <feature id="org.eclipse.emf.edit"/>
+      <feature id="org.eclipse.emf.validation"/>
+      <feature id="org.eclipse.pde"/>
+      <feature id="com.xored.l9client.core"/>
+      <feature id="com.google.libs"/>
+      <feature id="com.google.guava.runtime.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+   </configurations>
+
+</product>
