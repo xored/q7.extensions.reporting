@@ -5,4 +5,7 @@ reporting
         ->  "mvn clean install" could be used to obtain update site with sample report formats.
 runner
     -> Contains Q7 runner customization building configuration.
-    	->  "mvn clean intall" could be executed after reporting example are build. Will provide com.xored.q7_my q7runner artifact with version 1.2.0-SNAPSHOT
+    	->  "mvn clean intall" could be executed after reporting example are build.
+    	Will provide com.xored.q7_my q7runner artifact with version 1.2.0-SNAPSHOT
+    	
+For more information about this repository please visit: http://help.xored.com/display/Q7/Write+custom+report+renderer+extension+for+Q7
