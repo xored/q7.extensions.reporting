@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.xored.q7.reporting.example"
-      label="Q7 Runtime ECL Support"
+      label="Q7 Reporting Renderer example"
       version="1.0.0.qualifier"
       provider-name="xored software, Inc.">
 
@@ -16,6 +16,10 @@
    <license url="%licenseURL">
       %license
    </license>
+
+   <requires>
+      <import plugin="org.eclipse.core.resources"/>
+   </requires>
 
    <plugin
          id="com.xored.q7.reporting.example"
