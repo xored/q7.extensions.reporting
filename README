@@ -2,4 +2,7 @@ This repository will hold sample source code for various Q7 extensions.
 
 reporting
     -> Contain example Q7 Report Renderers.
-    ->  ->  mvn clean install could be used to obtain update site with sample report formats.
+        ->  "mvn clean install" could be used to obtain update site with sample report formats.
+runner
+    -> Contains Q7 runner customization building configuration.
+    	->  "mvn clean intall" could be executed after reporting example are build. Will provide com.xored.q7_my q7runner artifact with version 1.2.0-SNAPSHOT
