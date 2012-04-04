@@ -28,7 +28,7 @@
 			<snapshots>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
-			<url>http://download.xored.com/q7/1.2/repository</url>
+			<url>http://download.xored.com/q7/1.2.1-RC1/repository</url>
 		</repository>
 	</repositories>
 </project>
