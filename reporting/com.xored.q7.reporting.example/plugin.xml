@@ -7,7 +7,7 @@
             class="com.xored.q7.reporting.example.renderers.Sample1StatisticsReportRenderer"
             description="Save Q7 execution statistics"
             extension="sample.report.txt"
-            name="Sample 1: Q7 Statistics report">
+            name="Sample 1: Q7 Statistics report" id="sample1">
       </reportRenderer>
    </extension>
 
