@@ -58,10 +58,14 @@ public class Sample1StatisticsReportRenderer implements IReportRenderer {
 				Q7Info q7info = (Q7Info) localRoot.getProperties().get(
 						IQ7ReportConstants.ROOT);
 				String resultLine = "";
+				String extraMessage = "";
 				switch (q7info.getResult()) {
 				case FAIL:
 				case WARN:
 					resultLine += "Failed";
+					extraMessage = "\n\t reason: " +  SampleUtil.getFailMessage(localRoot);
+					// "\n"
+					// + SampleUtil.getDefails(localRoot);
 					break;
 				case PASS:
 					resultLine += "Passed";
@@ -73,7 +77,7 @@ public class Sample1StatisticsReportRenderer implements IReportRenderer {
 				resultLine += " testcase: " + localRoot.getName();
 				resultLine += " execution time: "
 						+ (localRoot.getEndTime() - localRoot.getStartTime());
-				writer.append(resultLine + "\n");
+				writer.append(resultLine + extraMessage + "\n");
 			}
 
 			writer.close();
