@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.xored.q7_my</groupId>
+	<groupId>com.xored.q7-custom</groupId>
 	<artifactId>q7runner</artifactId>
-	<version>1.2.0-SNAPSHOT</version>
+	<version>1.2.1</version>
 	<packaging>eclipse-application</packaging>
 
 	<properties>
@@ -12,17 +12,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<snapshots>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-			<id>xored</id>
-			<name>Xored Maven repository</name>
-			<url>http://maven.xored.com/nexus/content/repositories/snapshots/</url>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<repositories>
 		<repository>
 			<snapshots>
@@ -30,7 +19,7 @@
 			</snapshots>
 			<id>q7-repository</id>
 			<layout>p2</layout>
-			<url>http://download.xored.com/q7/1.2.1-RC1/repository</url>
+			<url>http://dl.xored.com/q7/1.2.1/repository</url>
 		</repository>
 		<repository>
 			<id>indigo</id>
@@ -54,7 +43,7 @@
 			<snapshots>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
-			<url>http://build.xored.com/browse/XORED-SNRG/latestSuccessful/artifact/JOB1/repository</url>
+			<url>http://download.xored.com/synergy/latest/repository/</url>
 		</repository>
 
 		<repository>
@@ -63,7 +52,7 @@
 			<snapshots>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
-			<url>file://../reporting/com.xored.q7.reporting.example-updates/target/site</url>
+			<url>${project.baseUri}../reporting/com.xored.q7.reporting.example-updates/target/site</url>
 		</repository>
 	</repositories>
 
@@ -75,14 +64,14 @@
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
+      
 			<plugin>
 				<groupId>${tycho-groupid}</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
 					<resolver>p2</resolver>
-					<!--ignoreTychoRepositories>true</ignoreTychoRepositories -->
-					<environments>
+                    <environments>
 						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
@@ -108,7 +97,7 @@
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
 						</environment>
-					</environments>
+                    </environments>
 				</configuration>
 			</plugin>
 
@@ -118,13 +107,6 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<separateEnvironments>false</separateEnvironments>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<skip>false</skip>
 				</configuration>
 			</plugin>
 		</plugins>

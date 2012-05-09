@@ -7,19 +7,39 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<parent>
-		<groupId>com.xored.q7.ext</groupId>
-		<artifactId>q7-base-pom</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>./pom-base.xml</relativePath>
-	</parent>
 	<modules>
-		<!--module>target-definition</module -->
 		<!-- Core modules -->
 		<module>com.xored.q7.reporting.example</module>
 		<module>com.xored.q7.reporting.example-feature</module>
 		<module>com.xored.q7.reporting.example-updates</module>
 	</modules>
+
+	<properties>
+		<tycho-version>0.13.0</tycho-version>
+		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<aspectj_version>1.4</aspectj_version>
+		<aspectj_dep>1.6.11</aspectj_dep>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<repositories>
 		<repository>
@@ -28,7 +48,7 @@
 			<snapshots>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
-			<url>http://download.xored.com/q7/1.2.1-RC1/repository</url>
+			<url>http://dl.xored.com/q7/1.2.1/repository</url>
 		</repository>
 	</repositories>
 </project>
