@@ -1,23 +1,25 @@
-package com.xored.q7.reporting.example;
+package com.xored.q7.reporting.example.internal;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends Plugin {
+public class SampleReportingPlugin extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "com.xored.q7.reporting.example"; //$NON-NLS-1$
 
 	// The shared instance
-	private static Activator plugin;
+	private static SampleReportingPlugin plugin;
 
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public SampleReportingPlugin() {
 	}
 
 	/*
@@ -49,8 +51,16 @@ public class Activator extends Plugin {
 	 * 
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
+	public static SampleReportingPlugin getDefault() {
 		return plugin;
+	}
+
+	public static IStatus createErr(String message) {
+		return createErr(message, null);
+	}
+
+	public static IStatus createErr(String message, Throwable cause) {
+		return new Status(IStatus.ERROR, PLUGIN_ID, message, cause);
 	}
 
 }

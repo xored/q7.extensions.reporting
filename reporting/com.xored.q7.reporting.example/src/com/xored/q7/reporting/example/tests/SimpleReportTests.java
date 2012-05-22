@@ -7,13 +7,13 @@ import org.eclipse.core.runtime.FileLocator;
 import org.junit.Test;
 
 import com.xored.q7.reporting.core.Q7ReportIterator;
-import com.xored.q7.reporting.example.Activator;
+import com.xored.q7.reporting.example.internal.SampleReportingPlugin;
 import com.xored.q7.reporting.example.renderers.Sample1StatisticsReportRenderer;
 
 public class SimpleReportTests {
 	@Test
 	public void testSimpleReport() throws Throwable {
-		URL entry = Activator.getDefault().getBundle()
+		URL entry = SampleReportingPlugin.getDefault().getBundle()
 				.getEntry("/samples/sample.report");
 		URL url = FileLocator.resolve(entry);
 		File file = new File(url.getPath());
