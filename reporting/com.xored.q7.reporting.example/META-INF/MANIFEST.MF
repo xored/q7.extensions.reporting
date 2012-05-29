@@ -9,6 +9,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.5.0,3.8.0)",
  com.xored.watson.core;bundle-version="1.1.0",
  com.xored.q7.reporting;bundle-version="1.1.0",
  org.junit,
- com.xored.tesla.core;bundle-version="1.1.0"
+ com.xored.tesla.core;bundle-version="1.1.0",
+ com.xored.q7.core;bundle-version="1.1.0",
+ org.eclipse.core.resources
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
