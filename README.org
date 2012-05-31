@@ -16,13 +16,21 @@
       <groupId>com.xored.q7-custom</groupId>
     </q7>
 
+    <report>
+      <id>sample</id>
+      <name>myreport</name>
+    </report>
+
+
 #+END_SRC
    
    In order to use a custom reporter without Maven plugin, add this argument to [[http://help.xored.com/display/Q7/Q7+Runner][Q7 runner]] command line:
 #+BEGIN_SRC 
--report "sample;/path/to/sample/reporter/output"
+
+... -report "sample;/path/to/sample/reporter/output"
+
 #+END_SRC
 ** pom.xml
    Convenience pom for building both *reporting* and *runner* in a one shot.
     	
-For more information about writing custom reporters please visit: http://help.xored.com/display/Q7/Write+custom+report+renderer+extension+for+Q7
+For more information about writing custom reporters visit http://help.xored.com/display/Q7/Write+custom+report+renderer+extension+for+Q7
