@@ -12,10 +12,15 @@
    This folder contains Q7 Runner product description along with links to Q7 repositories and *reporting* folder so that it is possible to build a custom version of Q7 Runner which will contain custom reporter. Run "mvn clean install" to build q7runner locally or add [[http://maven.apache.org/pom.html#Distribution_Management][Distribution management]] information to *pom.xml* and use "mvn clean deploy"  to deploy a custom runner into your nexus repository. To distinguish this custom runner from original ones from Xored, the group id has changed to *com.xored.q7.custom*. So after a build the following snippet can be used in [[http://help.xored.com/display/Q7/Q7+Maven+Plugin][Q7 Maven Plugin]] configuration:
 #+BEGIN_SRC xml
     <q7>
-      <version>1.2.1</version>
-      <groupId>com.xored.q7_my</groupId>
+      <version>1.2.2-RC2</version>
+      <groupId>com.xored.q7-custom</groupId>
     </q7>
 
+#+END_SRC
+   
+   In order to use a custom reporter without Maven plugin, add this argument to [[http://help.xored.com/display/Q7/Q7+Runner][Q7 runner]] command line:
+#+BEGIN_SRC 
+-report "sample;/path/to/sample/reporter/output"
 #+END_SRC
 ** pom.xml
    Convenience pom for building both *reporting* and *runner* in a one shot.
