@@ -4,7 +4,9 @@ import static com.xored.q7.reporting.example.internal.SampleReportingPlugin.crea
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -277,6 +279,7 @@ public class SampleReportRenderer implements IReportRenderer {
 	private static final String ATTR_NAME = "name";
 	private static final String ATTR_STATUS = "status";
 	private static final String ATTR_DURATION = "duration";
+	private static final String ATTR_START_DATE = "date";
 
 	private class FeatureContainer {
 		public FeatureContainer(String featureName, IContentFactory factory)
@@ -300,11 +303,17 @@ public class SampleReportRenderer implements IReportRenderer {
 			addTags(testcaseElement, info);
 			addContexts(testcaseElement, reportRoot);
 			addScript(testcaseElement, reportRoot);
-
+			setExecutionDate(testcaseElement, reportRoot);
 			total++;
 			if (info.getResult() == ResultStatus.PASS) {
 				passed++;
 			}
+		}
+
+		private void setExecutionDate(Element element, Node node) {
+			element.setAttribute(ATTR_START_DATE,
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+							.format(new Date(node.getStartTime())));
 		}
 
 		private void setResult(Element element, Node node) {
