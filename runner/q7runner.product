@@ -53,7 +53,6 @@
       <feature id="org.eclipse.emf.edit"/>
       <feature id="org.eclipse.emf.validation"/>
       <feature id="org.eclipse.pde"/>
-      <feature id="com.xored.l9client.core"/>
       <feature id="com.google.libs"/>
       <feature id="com.google.guava.runtime.feature"/>
    </features>
