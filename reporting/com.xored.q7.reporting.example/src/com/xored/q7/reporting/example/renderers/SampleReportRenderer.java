@@ -35,8 +35,10 @@ import com.xored.q7.reporting.core.IQ7ReportConstants;
 import com.xored.q7.reporting.core.IReportRenderer;
 import com.xored.q7.reporting.core.Q7ReportIterator;
 import com.xored.q7.reporting.example.internal.SampleReportingPlugin;
+import com.xored.sherlock.core.model.sherlock.report.Event;
 import com.xored.sherlock.core.model.sherlock.report.Node;
 import com.xored.sherlock.core.model.sherlock.report.Report;
+import com.xored.sherlock.core.model.sherlock.report.TraceData;
 
 public class SampleReportRenderer implements IReportRenderer {
 
@@ -198,6 +200,21 @@ public class SampleReportRenderer implements IReportRenderer {
 		return String.format("%s\nCaused by: %s", message, childMessage);
 	}
 
+	private static String formatTime(long time) {
+		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+				.format(new Date(time));
+	}
+
+	private static Event[] getTraceNodes(Node node) {
+		List<Event> result = new ArrayList<Event>();
+		for (Event event : node.getEvents()) {
+			if (event.getData() instanceof TraceData) {
+				result.add(event);
+			}
+		}
+		return result.toArray(new Event[result.size()]);
+	}
+
 	private static String getFeatureName(Report report) {
 		Q7Info info = getQ7Info(report.getRoot());
 		if (info.getTags() == null || info.getTags().length() == 0) {
@@ -272,6 +289,8 @@ public class SampleReportRenderer implements IReportRenderer {
 	private static final String ELEMENT_CONTEXT = "context";
 	private static final String ELEMENT_SCRIPT = "script";
 	private static final String ELEMENT_MESSAGE = "message";
+	private static final String ELEMENT_TRACES = "traces";
+	private static final String ELEMENT_TRACE = "trace";
 
 	private static final String ATTR_TOTAL = "total";
 	private static final String ATTR_PASSED = "passed";
@@ -280,6 +299,7 @@ public class SampleReportRenderer implements IReportRenderer {
 	private static final String ATTR_STATUS = "status";
 	private static final String ATTR_DURATION = "duration";
 	private static final String ATTR_START_DATE = "date";
+	private static final String ATTR_TIME = "time";
 
 	private class FeatureContainer {
 		public FeatureContainer(String featureName, IContentFactory factory)
@@ -304,16 +324,34 @@ public class SampleReportRenderer implements IReportRenderer {
 			addContexts(testcaseElement, reportRoot);
 			addScript(testcaseElement, reportRoot);
 			setExecutionDate(testcaseElement, reportRoot);
+			addTraces(testcaseElement, reportRoot);
 			total++;
 			if (info.getResult() == ResultStatus.PASS) {
 				passed++;
 			}
 		}
 
+		private void addTraces(Element tc, Node node) {
+			Event[] traceEvents = getTraceNodes(node);
+			if (traceEvents.length == 0) {
+				return;
+			}
+
+			Element traces = tc.getOwnerDocument()
+					.createElement(ELEMENT_TRACES);
+			tc.appendChild(traces);
+			for (Event e : traceEvents) {
+				Element trace = tc.getOwnerDocument().createElement(
+						ELEMENT_TRACE);
+				trace.setAttribute(ATTR_TIME, formatTime(e.getTime()));
+				trace.setTextContent(((TraceData) e.getData()).getMessage());
+				traces.appendChild(trace);
+			}
+		}
+
 		private void setExecutionDate(Element element, Node node) {
 			element.setAttribute(ATTR_START_DATE,
-					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-							.format(new Date(node.getStartTime())));
+					formatTime(node.getStartTime()));
 		}
 
 		private void setResult(Element element, Node node) {

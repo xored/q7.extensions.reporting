@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.xored.q7-custom</groupId>
 	<artifactId>q7runner</artifactId>
-	<version>1.2.2-RC2</version>
+	<version>1.2.2-RC5</version>
 	<packaging>eclipse-application</packaging>
 
 	<properties>
@@ -19,7 +19,7 @@
 			</snapshots>
 			<id>q7-repository</id>
 			<layout>p2</layout>
-			<url>http://download.xored.com/q7/1.2.2-RC2/repository</url>
+			<url>http://download.xored.com/q7/1.2.2-RC5/repository</url>
 		</repository>
 		<repository>
 			<id>indigo</id>
