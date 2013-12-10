@@ -1,54 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.xored.q7.ext</groupId>
-	<artifactId>q7.extensions</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.xored.q7.ext</groupId>
+    <artifactId>q7.extensions</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-	<modules>
-		<!-- Core modules -->
-		<module>com.xored.q7.reporting.example</module>
-		<module>com.xored.q7.reporting.example-feature</module>
-		<module>com.xored.q7.reporting.example-updates</module>
-	</modules>
+    <parent>
+        <groupId>com.xored.q7</groupId>
+        <artifactId>q7.extensions.reporting.complete</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
 
-	<properties>
-		<tycho-version>0.13.0</tycho-version>
-		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<aspectj_version>1.4</aspectj_version>
-		<aspectj_dep>1.6.11</aspectj_dep>
-	</properties>
+    <modules>
+	<!-- Core modules -->
+	<module>com.xored.q7.reporting.example</module>
+	<module>com.xored.q7.reporting.example-feature</module>
+	<module>com.xored.q7.reporting.example-updates</module>
+    </modules>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>${tycho-groupid}</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<resolver>p2</resolver>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>${tycho-groupid}</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
-		</plugins>
-	</build>
+    <properties>
+	<tycho-version>0.13.0</tycho-version>
+	<tycho-groupid>org.eclipse.tycho</tycho-groupid>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-	<repositories>
-		<repository>
-			<id>q7</id>
-			<layout>p2</layout>
-			<snapshots>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-			<url>http://download.xored.com/q7/1.2.2-RC5/repository</url>
-		</repository>
-	</repositories>
+    <build>
+	<plugins>
+	    <plugin>
+		<groupId>${tycho-groupid}</groupId>
+		<artifactId>target-platform-configuration</artifactId>
+		<version>${tycho-version}</version>
+		<configuration>
+		    <resolver>p2</resolver>
+		</configuration>
+	    </plugin>
+	    <plugin>
+		<groupId>${tycho-groupid}</groupId>
+		<artifactId>tycho-maven-plugin</artifactId>
+		<version>${tycho-version}</version>
+		<extensions>true</extensions>
+	    </plugin>
+	</plugins>
+    </build>
 </project>

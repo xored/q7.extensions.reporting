@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Q7" uid="com.xored.q7.q7runner" id="com.xored.q7.runner.product" application="com.xored.q7.runner.headless" version="1.2.1.qualifier" useFeatures="true" includeLaunchers="false">
+<product name="Q7" uid="com.xored.q7.q7runner" id="com.xored.q7.runner.product" application="com.xored.q7.runner.headless" version="1.3.9.qualifier" useFeatures="true" includeLaunchers="false">
 
    <configIni use="default">
-      <linux>config.ini</linux>
    </configIni>
 
    <launcherArgs>
@@ -36,25 +35,28 @@
       <feature id="com.xored.watson"/>
       <feature id="com.xored.q7.runner"/>
       <feature id="com.xored.q7.updates"/>
+      <feature id="com.xored.q7.module.nebula"/>
       <feature id="com.xored.q7.x5.server"/>
       <feature id="org.eclipse.ecl.server"/>
       <feature id="com.xored.tesla.ecl"/>
       <feature id="org.eclipse.ecl.core"/>
       <feature id="org.eclipse.ecl.ide"/>
+      <feature id="org.eclipse.ecl.platform"/>
       <feature id="com.xored.tesla"/>
-      <feature id="org.eclipse.pde"/>
       <feature id="org.eclipse.emf.ecore"/>
       <feature id="org.eclipse.emf.workspace"/>
-      <feature id="org.eclipse.jdt"/>
-      <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.emf.common"/>
       <feature id="org.eclipse.emf.databinding"/>
       <feature id="org.eclipse.emf.transaction"/>
       <feature id="org.eclipse.emf.edit"/>
       <feature id="org.eclipse.emf.validation"/>
-      <feature id="org.eclipse.pde"/>
       <feature id="com.google.libs"/>
-      <feature id="com.google.guava.runtime.feature"/>
+      <feature id="org.eclipse.jdt.lite"/>
+      <feature id="org.eclipse.pde.lite"/>
+      <feature id="org.eclipse.rcp.lite"/>
+      <feature id="org.eclipse.platform.lite"/>
+      <feature id="org.eclipse.equinox.p2.core.feature"/>
+      <feature id="org.eclipse.equinox.p2.extras.feature"/>
    </features>
 
    <configurations>
