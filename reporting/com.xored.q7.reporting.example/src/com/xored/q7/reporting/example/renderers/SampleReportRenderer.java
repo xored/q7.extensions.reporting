@@ -1,452 +1,340 @@
 package com.xored.q7.reporting.example.renderers;
 
-import static com.xored.q7.reporting.example.internal.SampleReportingPlugin.createErr;
-
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
+import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.eclipse.emf.common.util.EList;
 
-import com.xored.q7.reporting.ItemKind;
 import com.xored.q7.reporting.Q7Info;
+import com.xored.q7.reporting.Q7Statistics;
 import com.xored.q7.reporting.ResultStatus;
 import com.xored.q7.reporting.core.IQ7ReportConstants;
 import com.xored.q7.reporting.core.IReportRenderer;
 import com.xored.q7.reporting.core.Q7ReportIterator;
 import com.xored.q7.reporting.example.internal.SampleReportingPlugin;
-import com.xored.sherlock.core.model.sherlock.report.Event;
+import com.xored.q7.reporting.example.renderers.CustomAssertion.State;
+import com.xored.q7.reporting.internal.ReportUtils;
 import com.xored.sherlock.core.model.sherlock.report.Node;
 import com.xored.sherlock.core.model.sherlock.report.Report;
-import com.xored.sherlock.core.model.sherlock.report.TraceData;
+import com.xored.sherlock.core.model.sherlock.report.Screenshot;
+import com.xored.sherlock.core.model.sherlock.report.Snaphot;
 
 public class SampleReportRenderer implements IReportRenderer {
 
 	public IStatus generateReport(IContentFactory factory, String reportName,
 			Q7ReportIterator reportIterator) {
-		// Creating folder based on report name
-		// we are going to create a bunch of XML files based on feature name
-		// Feature name is identified by tag nested under "features" tag.
-		// If test case has several tags marked as "features", then only the
-		// first
-		// feature name is used.
-		//
-		// If test does not have a features/ tag, then it has "unspecified"
-		// feature
-		IContentFactory folderFactory = factory.createFolder(reportName);
 
-		// Map with result containers
-		Map<String, FeatureContainer> containers = new HashMap<String, FeatureContainer>();
-		// Iterating through all reports in iterator and looking for
-		reportIterator.reset();
-		while (reportIterator.hasNext()) {
-			Report report = reportIterator.next();
-			String featureName = getFeatureName(report);
-			if (!containers.containsKey(featureName)) {
-				try {
-					containers.put(featureName, new FeatureContainer(
-							featureName, folderFactory));
-				} catch (CoreException e) {
-					return e.getStatus();
-				}
-			}
-
-			containers.get(featureName).addReport(report);
-
+		try {
+			render(factory, new OutputStreamWriter(factory.createFileStream(reportName + ".html"), "UTF-8"),
+					reportIterator, reportName).close();
+		} catch (IOException e) {
+			return SampleReportingPlugin.createErr("IO Exception", e);
+		} catch (CoreException e) {
+			return e.getStatus();
 		}
-
-		for (FeatureContainer container : containers.values()) {
-			List<IStatus> statusList = new ArrayList<IStatus>();
-			try {
-				container.close();
-			} catch (CoreException e) {
-				statusList.add(e.getStatus());
-			}
-
-			if (!statusList.isEmpty()) {
-				return new MultiStatus(SampleReportingPlugin.PLUGIN_ID,
-						IStatus.ERROR,
-						statusList.toArray(new IStatus[statusList.size()]),
-						"Errors saving reports", null);
-			}
-		}
-
 		return Status.OK_STATUS;
 	}
 
-	private static final String FEATURE_TAG = "features";
-	private static final String UNSPECIFIED_FEATURE = "unspecified";
-
-	private static Q7Info getQ7Info(Node node) {
-		if (!node.getProperties().containsKey(IQ7ReportConstants.ROOT)) {
-			return null;
-		}
-		return (Q7Info) node.getProperties().get(IQ7ReportConstants.ROOT);
-
+	private Writer render(IContentFactory factory, Writer writer, Q7ReportIterator iterator, String reportName)
+			throws IOException, CoreException {
+		HtmlWriter hw = new HtmlWriter(writer);
+		hw.append(getContent("header.html"));
+		appendStats(hw, ReportUtils.calculateStatistics(iterator), reportName);
+		appendSummary(hw, iterator);
+		appendDetails(hw, iterator, factory.createFolder("images"));
+		hw.append(getContent("footer.html"));
+		return writer;
 	}
 
-	/**
-	 * Returns time in seconds
-	 * 
-	 * @param node
-	 * @return
-	 */
-	private static String getDurationString(Node node) {
-		long duration = getLastEndTime(node) - node.getStartTime();
-		return String.format("%d.%d", duration / 1000, duration % 1000);
+	private HtmlWriter appendStats(HtmlWriter w, Q7Statistics stats, String reportName) throws IOException {
+		return w.format("<h1>Q7 Execution Report &ndash; %s</h1>", reportName)
+				.openTag(TABLE)
+				.openTag(TR)
+				.th("Total tests")
+				.td(stats.getTotal())
+				.closeTag(TR)
+				.openTag(TR)
+				.th("Failed tests")
+				.td(stats.getFailed())
+				.closeTag(TR)
+				.openTag(TR)
+				.th("Execution Time")
+				.td(ReportUtils.formatTime(stats.getTime()) + "s")
+				.closeTag(TR)
+				.closeTag(TABLE);
 	}
 
-	/**
-	 * Recursively searches for the last node which has correct end time.
-	 * 
-	 * @param node
-	 * @return
-	 */
-	private static long getLastEndTime(Node node) {
-		if (node.getEndTime() != -1) {
-			return node.getEndTime();
-		}
+	private HtmlWriter appendSummary(HtmlWriter w, Q7ReportIterator iterator) throws IOException {
+		w.h2("Summary")
+				.openTag(OL);
 
-		List<Node> children = node.getChildren();
-		if (node.getChildren().isEmpty()) {
-			return -1;
-		}
-
-		return getLastEndTime(children.get(children.size() - 1));
-	}
-
-	private static Node[] getContextNodes(Node node) {
-		List<Node> result = new ArrayList<Node>();
-		for (Node child : node.getChildren()) {
-			Q7Info info = getQ7Info(child);
-			if (info != null && info.getType() == ItemKind.CONTEXT) {
-				result.add(child);
+		Iterator<Report> i = iterator.iterator();
+		while (i.hasNext()) {
+			Report report = i.next();
+			Node root = report.getRoot();
+			String testName = root.getName();
+			Q7Info info = (Q7Info) root.getProperties().get(IQ7ReportConstants.ROOT);
+			boolean failed = info.getResult() != ResultStatus.PASS;
+			w.openTag(LI);
+			if (failed) {
+				w.openTag(A, "href", "#" + info.getId(), "class", info.getResult().name().toLowerCase());
+			} else {
+				w.openTag("span", "class", info.getResult().name().toLowerCase());
 			}
-		}
-		return result.toArray(new Node[result.size()]);
-	}
+			w.append(markFromResult(info.getResult()))
+					.append(" ")
+					.escape(testName)
+					.closeTag(failed ? A : "span");
 
-	private static Node getScriptNode(Node node) {
-		for (Node child : node.getChildren()) {
-			Q7Info info = getQ7Info(child);
-			if (info != null && info.getType() == ItemKind.SCRIPT) {
-				return child;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Find first child with failed status and non-empty message
-	 * 
-	 * @param node
-	 * @return
-	 */
-	private static String getFailMessage(Node node) {
-		Q7Info info = getQ7Info(node);
-		if (info == null) {
-			return null;
-		}
-		if (info.getResult() != ResultStatus.FAIL) {
-			return null;
-		}
-
-		String message = info.getMessage();
-		String childMessage = null;
-
-		for (Node child : node.getChildren()) {
-			String result = getFailMessage(child);
-			if (result != null) {
-				childMessage = result;
-				break;
-			}
-		}
-
-		if (childMessage != null && info.getType() == ItemKind.ECL_COMMAND) {
-			// special case - when we have nested commands, we want a fail
-			// message only
-			// from the bottom command
-			return childMessage;
-		}
-
-		if (message == null) {
-			return childMessage;
-		}
-
-		if (childMessage == null) {
-			return message;
-		}
-
-		return String.format("%s\nCaused by: %s", message, childMessage);
-	}
-
-	private static String formatTime(long time) {
-		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-				.format(new Date(time));
-	}
-
-	private static Event[] getTraceNodes(Node node) {
-		List<Event> result = new ArrayList<Event>();
-		for (Event event : node.getEvents()) {
-			if (event.getData() instanceof TraceData) {
-				result.add(event);
-			}
-		}
-		return result.toArray(new Event[result.size()]);
-	}
-
-	private static String getFeatureName(Report report) {
-		Q7Info info = getQ7Info(report.getRoot());
-		if (info.getTags() == null || info.getTags().length() == 0) {
-			return UNSPECIFIED_FEATURE;
-		}
-
-		for (String tag : info.getTags().split("[,;\\:]")) {
-			tag = tag.trim();
-			// Split tag on components
-			String[] tagPath = tag.split("/");
-			if (tagPath.length < 2 || !tagPath[0].equals(FEATURE_TAG)) {
-				continue; // tag is not hierarchical or does not start with
-							// FEATURE_TAG
-			}
-
-			// join the rest of tag path with dot
-			// so that features/ui/editor -> ui.editor
-			StringBuilder sb = new StringBuilder();
-			for (int i = 1; i < tagPath.length; i++) {
-				sb.append(tagPath[i]);
-				if (i != tagPath.length - 1) {
-					sb.append(".");
+			CustomAssertion[] assertions = CustomAssertion.findAssertions(root);
+			if (assertions.length != 0) {
+				w.openTag(UL);
+				for (CustomAssertion assertion : assertions) {
+					w.openTag(LI, "class", assertion.state.name().toLowerCase())
+							.append(formatState(assertion.state))
+							.append(" ")
+							.escape(assertion.message)
+							.closeTag(LI);
 				}
+				w.closeTag(UL);
 			}
-			return sb.toString();
+			w.closeTag(LI);
+
 		}
-		return UNSPECIFIED_FEATURE;
+
+		return w.closeTag(OL);
 	}
+
+	private HtmlWriter appendDetails(HtmlWriter w, Q7ReportIterator iterator, IContentFactory images)
+			throws IOException, CoreException {
+		w.h2("Details");
+
+		Iterator<Report> i = iterator.iterator();
+
+		while (i.hasNext()) {
+			Report report = i.next();
+			Node root = report.getRoot();
+			Q7Info info = (Q7Info) root.getProperties().get(IQ7ReportConstants.ROOT);
+			if (info.getResult() == ResultStatus.PASS) {
+				continue;
+			}
+			w.openTag(A, "id", info.getId())
+					.closeTag(A)
+					.openTag(H3, "class", info.getResult().name().toLowerCase())
+					.append(" ")
+					.escape(root.getName())
+					.closeTag(H3);
+
+			appendFailureInfo(w, root, info, images);
+			appendAdvancedDetails(w, report, info);
+		}
+
+		return w;
+	}
+
+	private static Screenshot[] findImages(Node node) {
+		List<Screenshot> result = new ArrayList<Screenshot>();
+		findImages(node, result);
+		return result.toArray(new Screenshot[result.size()]);
+	}
+
+	private static void findImages(Node node, List<Screenshot> screenshots) {
+		EList<Snaphot> list = node.getSnapshots();
+		for (Snaphot snaphot : list) {
+			if (snaphot.getData() instanceof Screenshot) {
+				screenshots.add((Screenshot) snaphot.getData());
+			}
+		}
+		EList<Node> children = node.getChildren();
+		for (Node node2 : children) {
+			findImages(node2, screenshots);
+		}
+	}
+
+	private static HtmlWriter appendFailureInfo(HtmlWriter w, Node root, Q7Info info, IContentFactory images)
+			throws IOException, CoreException {
+		w.h4("Test Information");
+		w.openTag(TABLE)
+				.openTag(TR).th("Failure reason").openTag(TD).pre(ReportUtils.getFailMessage(root)).closeTag(TD)
+				.closeTag(TR)
+				.openTag(TR).th("Tags").td(info.getTags()).closeTag(TR)
+				.openTag(TR).th("Description").openTag(TD).pre(info.getDescription()).closeTag(TD).closeTag(TR)
+				.openTag(TR).th("Time Elapsed").td(ReportUtils.formatTime(root.getEndTime() - root.getStartTime()))
+				.closeTag(TR);
+
+		Screenshot[] screenshots = findImages(root);
+
+		if (screenshots.length == 0) {
+			return w.closeTag(TABLE);
+		}
+
+		w.openTag(TR).th("Screenshots").openTag(TD);
+		for (int i = 0; i < screenshots.length; i++) {
+			Screenshot shot = screenshots[i];
+			String filename = String.format("%s_%d.%s", info.getId(), i, shot.getKind().name().toLowerCase());
+			OutputStream stream = images.createFileStream(filename);
+			stream.write(shot.getData());
+			stream.close();
+
+			w.openTag(A, "href", "images/" + filename).openTag("img", "src", "images/" + filename, "alt",
+					shot.getMessage(), "height", "80", "width", "80").closeTag("img").closeTag("a");
+			// <a href="${shot}"> <img src="${shot}" alt="${shot}" height="80" width="80" /> </a>
+		}
+		w.closeTag(TD).closeTag(TR).closeTag(TABLE);
+
+		return w;
+	}
+
+	private static HtmlWriter appendAdvancedDetails(HtmlWriter w, Report report, Q7Info info) throws IOException {
+		w.h4("Advanced details");
+		w.pre(new AdvancedInfoPrinter().generateContent(report));
+		return w;
+	}
+
+	private static String markFromResult(ResultStatus status) {
+		switch (status) {
+		case FAIL:
+			return CROSS_MARK;
+		case PASS:
+			return CHECK_MARK;
+		case SKIPPED:
+			return QUESTION_MARK;
+		default:
+			return EXCLAMATION_MARK;
+		}
+	}
+
+	private static String formatState(State state) {
+		switch (state) {
+		case FAIL:
+			return CROSS_MARK;
+		case PASS:
+			return CHECK_MARK;
+		case SKIP:
+			return QUESTION_MARK;
+		default:
+			return EXCLAMATION_MARK;
+		}
+	}
+
+	private static final String CHECK_MARK = "&#x2713;";
+	private static final String CROSS_MARK = "&#x2717;";
+	private static final String QUESTION_MARK = "&#x3f;";
+	private static final String EXCLAMATION_MARK = "&#x21;";
 
 	public String[] getGeneratedFileNames(String reportName) {
-		return new String[] { reportName };
+		Set<String> fileNames = new HashSet<String>();
+		fileNames.add(reportName + ".html");
+		fileNames.add("images");
+		return fileNames.toArray(new String[fileNames.size()]);
 	}
 
-	private DocumentBuilder builder;
+	private static final String TH = "th";
+	private static final String TD = "td";
+	private static final String TR = "tr";
+	private static final String TABLE = "table";
+	private static final String H2 = "h2";
+	private static final String H3 = "h3";
+	private static final String H4 = "h4";
+	private static final String PRE = "PRE";
+	private static final String OL = "ol";
+	private static final String UL = "ul";
+	private static final String LI = "li";
+	private static final String A = "a";
 
-	private DocumentBuilder getBuilder() throws CoreException {
-		if (builder == null) {
-			try {
-				builder = DocumentBuilderFactory.newInstance()
-						.newDocumentBuilder();
-			} catch (ParserConfigurationException e) {
-				throw new CoreException(createErr(
-						"Error creating document builder", e));
-			}
+	private static class HtmlWriter {
+		private Writer w;
+
+		public HtmlWriter(Writer w) {
+			this.w = w;
 		}
-		return builder;
+
+		public HtmlWriter th(String text) throws IOException {
+			return tag(TH, text);
+		}
+
+		public HtmlWriter td(String text) throws IOException {
+			return tag(TD, text);
+		}
+
+		public HtmlWriter h2(String text) throws IOException {
+			return tag(H2, text);
+		}
+
+		public HtmlWriter h4(String text) throws IOException {
+			return tag(H4, text);
+		}
+
+		public HtmlWriter td(int num) throws IOException {
+			return tag(TD, Integer.toString(num));
+		}
+
+		public HtmlWriter pre(String text) throws IOException {
+			return tag(PRE, text);
+		}
+
+		public HtmlWriter tag(String tagName, String text) throws IOException {
+			return format("<%s>%s</%1$s>", tagName, escapeString(text == null ? "" : text));
+		}
+
+		public HtmlWriter openTag(String tagName, String... attributes) throws IOException {
+			w.append("<").append(tagName);
+			if (attributes.length > 0) {
+				w.append(" ");
+				for (int i = 0; i < attributes.length / 2; i++) {
+					format("%s = '%s'", attributes[i * 2], attributes[i * 2 + 1]);
+				}
+			}
+			w.append(">");
+			return this;
+		}
+
+		public HtmlWriter closeTag(String tagName) throws IOException {
+			return format("</%s>", tagName);
+		}
+
+		public HtmlWriter format(String format, Object... args) throws IOException {
+			w.append(String.format(format, args));
+			return this;
+		}
+
+		public HtmlWriter append(CharSequence cs) throws IOException {
+			w.append(cs);
+			return this;
+		}
+
+		public HtmlWriter escape(String s) throws IOException {
+			return append(escapeString(s));
+		}
+
+		public String escapeString(String s) {
+			return s.replace("&", "&amp;").replace("\\", "&#39;").replace("\"", "&quot;")
+					.replace("<", "&lt;").replace(">", "&gt;");
+		}
+
 	}
 
-	private Transformer transformer;
-
-	private Transformer getTransformer() throws CoreException {
-		if (transformer == null) {
-			TransformerFactory tf = TransformerFactory.newInstance();
-			tf.setAttribute("indent-number", 4);
-			try {
-				transformer = tf.newTransformer();
-			} catch (TransformerConfigurationException e) {
-				throw new CoreException(createErr(
-						"Error creating document writer", e));
-			}
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	private static final String getContent(String name) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		char[] buf = new char[8192];
+		int read = -1;
+		InputStreamReader reader = new InputStreamReader(SampleReportRenderer.class.getResourceAsStream(name),
+				"UTF-8");
+		while ((read = reader.read(buf)) != -1) {
+			sb.append(buf, 0, read);
 		}
-		return transformer;
+		return sb.toString();
 	}
 
-	private static final String ELEMENT_ROOT = "testcases";
-	private static final String ELEMENT_TEST_CASE = "testcase";
-	private static final String ELEMENT_DESCRIPTION = "description";
-	private static final String ELEMENT_TAGS = "tags";
-	private static final String ELEMENT_TAG = "tag";
-	private static final String ELEMENT_CONTEXTS = "contexts";
-	private static final String ELEMENT_CONTEXT = "context";
-	private static final String ELEMENT_SCRIPT = "script";
-	private static final String ELEMENT_MESSAGE = "message";
-	private static final String ELEMENT_TRACES = "traces";
-	private static final String ELEMENT_TRACE = "trace";
-
-	private static final String ATTR_TOTAL = "total";
-	private static final String ATTR_PASSED = "passed";
-	private static final String ATTR_FAILED = "failed";
-	private static final String ATTR_NAME = "name";
-	private static final String ATTR_STATUS = "status";
-	private static final String ATTR_DURATION = "duration";
-	private static final String ATTR_START_DATE = "date";
-	private static final String ATTR_TIME = "time";
-
-	private class FeatureContainer {
-		public FeatureContainer(String featureName, IContentFactory factory)
-				throws CoreException {
-			this.destination = factory.createFileStream(String.format("%s.xml",
-					featureName));
-			this.document = getBuilder().newDocument();
-			this.root = document.createElement(ELEMENT_ROOT);
-			document.appendChild(root);
-		}
-
-		public void addReport(Report report) {
-			Element testcaseElement = document.createElement(ELEMENT_TEST_CASE);
-			Node reportRoot = report.getRoot();
-			Q7Info info = getQ7Info(reportRoot);
-			root.appendChild(testcaseElement);
-			testcaseElement.setAttribute(ATTR_NAME, reportRoot.getName());
-			setResult(testcaseElement, reportRoot);
-			setDuration(testcaseElement, reportRoot);
-			addDescription(testcaseElement, info);
-			addTags(testcaseElement, info);
-			addContexts(testcaseElement, reportRoot);
-			addScript(testcaseElement, reportRoot);
-			setExecutionDate(testcaseElement, reportRoot);
-			addTraces(testcaseElement, reportRoot);
-			total++;
-			if (info.getResult() == ResultStatus.PASS) {
-				passed++;
-			}
-		}
-
-		private void addTraces(Element tc, Node node) {
-			Event[] traceEvents = getTraceNodes(node);
-			if (traceEvents.length == 0) {
-				return;
-			}
-
-			Element traces = tc.getOwnerDocument()
-					.createElement(ELEMENT_TRACES);
-			tc.appendChild(traces);
-			for (Event e : traceEvents) {
-				Element trace = tc.getOwnerDocument().createElement(
-						ELEMENT_TRACE);
-				trace.setAttribute(ATTR_TIME, formatTime(e.getTime()));
-				trace.setTextContent(((TraceData) e.getData()).getMessage());
-				traces.appendChild(trace);
-			}
-		}
-
-		private void setExecutionDate(Element element, Node node) {
-			element.setAttribute(ATTR_START_DATE,
-					formatTime(node.getStartTime()));
-		}
-
-		private void setResult(Element element, Node node) {
-			Q7Info q7info = getQ7Info(node);
-
-			element.setAttribute(ATTR_STATUS, q7info.getResult().toString());
-			if (q7info.getResult() == ResultStatus.FAIL) {
-				Element me = element.getOwnerDocument().createElement(
-						ELEMENT_MESSAGE);
-				me.setTextContent(getFailMessage(node));
-				element.appendChild(me);
-			}
-			setDuration(element, node);
-		}
-
-		private void addScript(Element tce, Node node) {
-			Node scriptNode = getScriptNode(node);
-			if (scriptNode == null) {
-				return;
-			}
-
-			Element scriptElement = tce.getOwnerDocument().createElement(
-					ELEMENT_SCRIPT);
-			tce.appendChild(scriptElement);
-			setResult(scriptElement, scriptNode);
-		}
-
-		private void addContexts(Element tce, Node node) {
-			Node[] contextNodes = getContextNodes(node);
-			if (contextNodes.length == 0) {
-				return;
-			}
-
-			Element contexts = tce.getOwnerDocument().createElement(
-					ELEMENT_CONTEXTS);
-			tce.appendChild(contexts);
-			for (Node context : contextNodes) {
-				Element contextElement = tce.getOwnerDocument().createElement(
-						ELEMENT_CONTEXT);
-				setResult(contextElement, context);
-				contextElement.setAttribute(ATTR_NAME, context.getName());
-				contexts.appendChild(contextElement);
-			}
-		}
-
-		private void setDuration(Element tce, Node node) {
-			tce.setAttribute(ATTR_DURATION, getDurationString(node));
-		}
-
-		private void addDescription(Element tce, Q7Info info) {
-			Element description = document.createElement(ELEMENT_DESCRIPTION);
-			description.setTextContent(info.getDescription());
-			tce.appendChild(description);
-		}
-
-		private void addTags(Element tce, Q7Info info) {
-			Element tags = document.createElement(ELEMENT_TAGS);
-			tce.appendChild(tags);
-			if (info.getTags() == null || info.getTags().length() == 0) {
-				return;
-			}
-
-			for (String tag : info.getTags().split("[,;\\:]")) {
-				Element te = document.createElement(ELEMENT_TAG);
-				te.setTextContent(tag.trim());
-				tags.appendChild(te);
-			}
-		}
-
-		private int total = 0;
-		private int passed = 0;
-		private final OutputStream destination;
-		private final Document document;
-		private final Element root;
-
-		/**
-		 * Saves accumulated document
-		 * 
-		 * @throws CoreException
-		 *             when file cannot be written
-		 */
-		public void close() throws CoreException {
-			root.setAttribute(ATTR_TOTAL, Integer.toString(total));
-			root.setAttribute(ATTR_PASSED, Integer.toString(passed));
-			root.setAttribute(ATTR_FAILED, Integer.toString(total - passed));
-
-			try {
-				StreamResult result = new StreamResult(new OutputStreamWriter(
-						destination, "UTF-8"));
-				getTransformer().transform(new DOMSource(document), result);
-				destination.close();
-			} catch (Exception e) {
-				throw new CoreException(createErr(
-						"Error saving result xml file", e));
-			}
-		}
-	}
 }

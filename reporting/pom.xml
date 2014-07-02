@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.xored.q7.ext</groupId>
-    <artifactId>q7.extensions</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>q7.extensions</groupId>
+  <artifactId>reporting</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>q7.extensions</groupId>
+    <artifactId>reporting.complete</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+  </parent>
 
-    <parent>
-        <groupId>com.xored.q7</groupId>
-        <artifactId>q7.extensions.reporting.complete</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
+  <modules>
+    <!-- Core modules -->
+    <module>com.xored.q7.reporting.example</module>
+    <module>com.xored.q7.reporting.example-feature</module>
+    <module>com.xored.q7.reporting.example-updates</module>
+  </modules>
 
-    <modules>
-	<!-- Core modules -->
-	<module>com.xored.q7.reporting.example</module>
-	<module>com.xored.q7.reporting.example-feature</module>
-	<module>com.xored.q7.reporting.example-updates</module>
-    </modules>
+  <properties>
+    <tycho-version>0.19.0</tycho-version>
+    <tycho-groupid>org.eclipse.tycho</tycho-groupid>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-    <properties>
-	<tycho-version>0.13.0</tycho-version>
-	<tycho-groupid>org.eclipse.tycho</tycho-groupid>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <build>
-	<plugins>
-	    <plugin>
-		<groupId>${tycho-groupid}</groupId>
-		<artifactId>target-platform-configuration</artifactId>
-		<version>${tycho-version}</version>
-		<configuration>
-		    <resolver>p2</resolver>
-		</configuration>
-	    </plugin>
-	    <plugin>
-		<groupId>${tycho-groupid}</groupId>
-		<artifactId>tycho-maven-plugin</artifactId>
-		<version>${tycho-version}</version>
-		<extensions>true</extensions>
-	    </plugin>
-	</plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>${tycho-groupid}</groupId>
+	<artifactId>target-platform-configuration</artifactId>
+	<version>${tycho-version}</version>
+	<configuration>
+	  <resolver>p2</resolver>
+	</configuration>
+      </plugin>
+      <plugin>
+	<groupId>${tycho-groupid}</groupId>
+	<artifactId>tycho-maven-plugin</artifactId>
+	<version>${tycho-version}</version>
+	<extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

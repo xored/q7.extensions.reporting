@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.xored.q7</groupId>
-    <artifactId>q7.extensions.reporting.complete</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>q7.extensions</groupId>
+  <artifactId>reporting.complete</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-    <properties>
-	<tycho-version>0.13.0</tycho-version>
-	<tycho-groupid>org.eclipse.tycho</tycho-groupid>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+  <properties>
+    <tycho-version>0.19.0</tycho-version>
+    <tycho-groupid>org.eclipse.tycho</tycho-groupid>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-    <modules>
-        <module>reporting</module>
-        <module>runner</module>
-    </modules>
+  <modules>
+    <module>reporting</module>
+    <module>runner</module>
+    <module>q7tests</module>
+  </modules>
 
-    <repositories>
-	<repository>
-	    <id>q7-repository</id>
-	    <layout>p2</layout>
-	    <url>http://download.xored.com/q7/1.3.9/repository</url>
-	</repository>
-	<repository>
-	    <id>indigo</id>
-	    <layout>p2</layout>
-	    <url>http://download.eclipse.org/releases/indigo/</url>
-	</repository>
-    </repositories>
+  <repositories>
+    <repository>
+      <id>q7-repository</id>
+      <layout>p2</layout>
+      <url>http://download.xored.com/q7/1.3.13-RC1/repository</url>
+    </repository>
+    <repository>
+      <id>indigo</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/releases/indigo/</url>
+    </repository>
+  </repositories>
 </project>
