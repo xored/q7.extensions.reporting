@@ -29,7 +29,7 @@
       <plugin>
         <groupId>com.xored.q7</groupId>
         <artifactId>q7-maven-plugin</artifactId>
-        <version>1.3.12</version>
+        <version>1.4.0-B1</version>
         <extensions>true</extensions>
         <configuration>
 
